@@ -10,7 +10,7 @@ if(!$socket){
 socket_set_block($socket) or die("set block fail: ".socket_strerror(socket_last_error()));
 socket_bind($socket,$host,$port) or die("bind fail :".socket_strerror(socket_last_error()));
 echo "Binding the socket on $host:$port ... \n";
-socket_listen($socket,1) or die("listen fail: ".socket_strerror(socket_last_error()));
+socket_listen($socket,4) or die("listen fail: ".socket_strerror(socket_last_error()));
 echo "begin listen at $port...\n";
 for ($i=0;$i<=1;$i++){
 	if(pcntl_fork() == 0){
@@ -22,18 +22,14 @@ for ($i=0;$i<=1;$i++){
 			echo "new process,It's pid:".getmypid()."\n";
 			while(true){
 				echo "waiting data....\n";
-				$out = '';
-				$out = socket_read($msgSocket, 8192);
-				if(empty($out) || $out =="end\n"){
+				if(false === ($buf = socket_read($msgSocket, 2048,PHP_BINARY_READ))){
 					echo getmypid()." connection break..... \n";
-					socket_close($msgSocket);
 					break;
 				}
-				echo "recive info:$out";
-				$in = "server say: my pid is ".getmypid()."\n";
-				socket_write($msgSocket, $in,strlen($in));
+				echo $buf;
+				socket_write($msgSocket, "ggg\n",strlen("ggg\n"));
 			}
-			
+			socket_close($msgSocket);
 		}
 	}
 }
